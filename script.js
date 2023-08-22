@@ -1,37 +1,42 @@
-const options = {
-  method: "GET",
-  headers: {
-    "X-RapidAPI-Key": "d51a8945camsh92fa21a51c552bcp11bf9fjsn183b44520a0a",
-    "X-RapidAPI-Host": "weather-by-api-ninjas.p.rapidapi.com",
-  },
-};
-const getWeather = (city) => {
-  cityName.innerHTML = city;
-  fetch(
-    "https://weather-by-api-ninjas.p.rapidapi.com/v1/weather?city=" + city,
-    options
-  )
-    .then((response) => response.json())
-    .then((response) => {
-      console.log(response);
+const apiKey = "8fa649ef67cc33300d127fcfb2687aab";
+const apiUrl =
+  "https://api.openweathermap.org/data/2.5/weather?units=metric&q=";
+const searchBox = document.querySelector(".search input");
+const searchBtn = document.querySelector(".search button");
+const weatherIcon = document.querySelector(".weather-icon");
 
-      cloud_pct.innerHTML = response.cloud_pct;
-      temp.innerHTML = response.temp;
-      feels_like.innerHTML = response.feels_like;
-      humidity.innerHTML = response.humidity;
-      min_temp.innerHTML = response.min_temp;
-      max_temp.innerHTML = response.max_temp;
-      wind_speed.innerHTML = response.wind_speed;
-      //wind_degrees.innerHTML = response.wind_degrees;
-      sunrise.innerHTML = response.sunrise;
-      sunset.innerHTML = response.sunset;
-    })
-    .catch((err) => console.error(err));
-};
+async function chechWeather(city) {
+  const response = await fetch(apiUrl + city + `&appid=${apiKey}`);
 
-submit.addEventListener("click", (e) => {
-  e.preventDefault();
-  getWeather(city.value);
+  if (response.status == 404) {
+    document.querySelector(".error").style.display = "block";
+    document.querySelector(".weather").style.display = "none";
+  } else {
+    var data = await response.json();
+
+    document.querySelector(".city").innerHTML = data.name;
+    document.querySelector(".temp").innerHTML =
+      Math.round(data.main.temp) + "°C";
+    document.querySelector(".humidity").innerHTML = data.main.humidity + "%";
+    document.querySelector(".wind").innerHTML = data.wind.speed + " km/hr";
+
+    if (data.weather[0].main == "Clouds") {
+      weatherIcon.src = "images/clouds.png";
+    } else if (data.weather[0].main == "Clear") {
+      weatherIcon.src = "images/clear.png";
+    } else if (data.weather[0].main == "Rain") {
+      weatherIcon.src = "images/rain.png";
+    } else if (data.weather[0].main == "Drizzle") {
+      weatherIcon.src = "images/drizzle.png";
+    } else if (data.weather[0].main == "Mist") {
+      weatherIcon.src = "images/mist.png";
+    }
+
+    document.querySelector(".weather").style.display = "block";
+    document.querySelector(".error").style.display = "none";
+  }
+}
+
+searchBtn.addEventListener("click", () => {
+  chechWeather(searchBox.value);
 });
-
-getWeather("Chittagong");
